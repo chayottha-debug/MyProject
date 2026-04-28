@@ -77,8 +77,16 @@ def _build_pdf(payload):
     pdf.set_auto_page_break(auto=False)
 
     font_path = ROOT / "assets" / "THSarabunNew.ttf"
+    font_bold_path = ROOT / "assets" / "THSarabunNew Bold.ttf" # เพิ่มตัวแปรหาไฟล์ตัวหนา
+
     if font_path.exists():
+        # โหลดตัวธรรมดา
         pdf.add_font('THSarabun', '', str(font_path), uni=True)
+        
+        # เช็คว่ามีไฟล์ตัวหนาไหม ถ้ามีให้โหลดจับคู่กับสไตล์ 'b'
+        if font_bold_path.exists():
+            pdf.add_font('THSarabun', 'b', str(font_bold_path), uni=True)
+            
         use_f = 'THSarabun'
     else:
         use_f = 'Arial'
