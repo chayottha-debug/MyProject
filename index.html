@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SIWAKIT TRADING.CO.,LTD</title>
+  <meta name="description" content="ระบบออกใบเสนอราคาทันสมัย เชื่อม Supabase พร้อมฐานข้อมูลลูกค้า สินค้า และประวัติเอกสาร">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./assets/styles.css">
+  <style>
+    /* ========== PRINT SHEET STYLES ========== */
+    .print-sheet-shell { display: none; }
+
+    .print-sheet {
+      font-family: 'THSarabunNew', 'TH Sarabun New', 'Sarabun', sans-serif;
+      font-size: 20px;
+      font-weight: 400 !important;
+      color: #000;
+      background: #fff;
+      padding: 28px 32px;
+      width: 794px;
+      min-height: 277mm;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+    }
+    .print-sheet * {
+      font-family: inherit;
+      font-weight: 400 !important;
+    }
+    /* ส่วน content หลักขยายเต็มพื้นที่ว่าง ดัน signature ลงล่าง */
+    .prt-content {
+      flex: 1;
+    }
+
+    /* HEADER */
+    .prt-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 16px;
+    }
+    .prt-company {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+    .prt-logo {
+      width: auto;
+      max-width: 94px;
+      object-fit: contain;
+      object-position: top;
+      flex-shrink: 0;
+      /* ดันลงมานิดให้ขอบบนตรงกับชื่อบริษัท (ชดเชย line-height ของ strong) */
+      margin-top: 4px;
+    }
+    .prt-company-info {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      font-size: 20px;
+      line-height: 1.3;
+    }
+    .prt-company-info strong {
+      font-size: 25px;
+    }
+    .prt-docbox {
+      border: 1px solid #555;
+      padding: 8px 14px;
+      font-size: 20px;
+      line-height: 1.3;
+      display: inline-block;
+      width: fit-content;
+      text-align: left;
+      white-space: nowrap;
+    }
+
+    /* TITLE */
+    .prt-title {
+      text-align: center;
+      font-size: 30px;
+      margin: 14px 0 14px;
+      letter-spacing: 0.02em;
+    }
+
+    /* INFO GRID */
+    .prt-info-grid {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 10px;
+      font-size: 20px;
+      line-height: 1.3;
+    }
+    .prt-customer { flex: 1; }
+    .prt-customer p, .prt-terms p { margin: 0; }
+    .prt-terms {
+      min-width: 200px;
+      text-align: left;
+    }
+
+    /* ITEMS TABLE */
+    .prt-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 0;
+      font-size: 20px;
+    }
+    .prt-table th {
+      background: #f0f0f0;
+      border: 1px solid #bbb;
+      padding: 6px 8px;
+      text-align: center;
+    }
+    .prt-table td {
+      border: 1px solid #bbb;
+      padding: 5px 8px;
+      vertical-align: top;
+    }
+    .prt-table .col-no  { width: 5%;  text-align: center; }
+    .prt-table .col-desc{ width: 52%; }
+    .prt-table .col-num { width: 10%; text-align: right; }
+    .prt-table .col-unit{ width: 10%; text-align: center; }
+    .prt-table .col-price{ width: 13%; text-align: right; }
+    .prt-table td:nth-child(1) { text-align: center; }
+    .prt-table td:nth-child(3),
+    .prt-table td:nth-child(5) { text-align: right; }
+    .prt-table td:nth-child(4) { text-align: center; }
+
+    /* BOTTOM GRID */
+    .prt-bottom-grid {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+      margin-top: 10px;
+      border-top: 1px solid #ccc;
+      padding-top: 8px;
+    }
+    .prt-remark {
+      flex: 1;
+      font-size: 20px;
+      line-height: 1.3;
+    }
+    .prt-remark-label {
+      margin: 0 0 4px;
+    }
+    .prt-remark ol { margin: 0; padding-left: 18px; }
+    .prt-remark li { margin-bottom: 2px; }
+
+    .prt-summary {
+      min-width: 240px;
+      font-size: 20px;
+    }
+    .prt-sum-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 2px 0;
+      border-bottom: 1px dotted #ddd;
+    }
+    .prt-sum-row span:last-child { text-align: right; min-width: 80px; }
+    .prt-grand {
+      font-size: 20px;
+      border-bottom: 2px solid #000 !important;
+      border-top: 1px solid #000;
+      padding: 3px 0 !important;
+    }
+
+    /* BAHT TEXT */
+    .prt-bahttext {
+      text-align: center;
+      font-size: 20px;
+      margin: 8px 0 0;
+      font-style: normal;
+    }
+    .prt-bahttext::before { content: "("; }
+    .prt-bahttext::after  { content: ")"; }
+
+    /* SIGNATURES — ล็อคอยู่ล่างสุดเสมอ */
+    .prt-sig-row {
+      display: flex;
+      justify-content: space-around;
+      gap: 32px;
+      margin-top: auto;  /* ดันลงล่างสุดของ flex column */
+      padding-top: 32px;
+    }
+    .prt-sig-card {
+      flex: 1;
+      text-align: center;
+      font-size: 20px;
+    }
+    .prt-sig-img {
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .prt-sig-img img {
+      max-height: 60px;
+      max-width: 140px;
+      object-fit: contain;
+    }
+    .signature-placeholder {
+      display: none; /* ซ่อนข้อความ "รออัปโหลดลายเซ็น" */
+    }
+    .prt-sig-line {
+      letter-spacing: 2px;
+      margin: 2px 0;
+      color: #333;
+    }
+    .prt-sig-label { margin: 2px 0; }
+    .prt-sig-name  { margin: 2px 0; }
+    .prt-sig-date  { margin: 2px 0; color: #555; }
+
+    /* ========== @MEDIA PRINT ========== */
+    @media print {
+      * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+      body > *:not(.print-sheet-shell) { display: none !important; }
+
+      .print-sheet-shell {
+        display: block !important;
+        position: static !important;
+      }
+
+      .print-sheet {
+        width: 100%;
+        padding: 16px 20px;
+        box-shadow: none;
+        border: none;
+        page-break-after: avoid;
+      }
+
+      @page {
+        size: A4 portrait;
+        margin: 10mm 12mm;
+        /* ซ่อน URL ซ้ายล่าง และเลขหน้าขวาล่าง */
+        margin-header: 0;
+        margin-footer: 0;
+        @top-left { content: ""; }
+        @top-right { content: ""; }
+        @bottom-left { content: ""; }
+        @bottom-right { content: ""; }
+        @bottom-center { content: ""; }
+        @top-center { content: ""; }
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="background-orb orb-1"></div>
+  <div class="background-orb orb-2"></div>
+
+  <header class="topbar shell">
+    <div class="brand">
+      <img src="./assets/logo11.jpg" alt="SIWAKIT logo" class="brand-logo">
+      <div>
+        <p class="eyebrow">Quotation Management System</p>
+        <h1>SIWAKIT TRADING.CO.,LTD</h1>
+      </div>
+    </div>
+    <div class="topbar-actions">
+      <div class="status-pill compact" id="connectionStatus">ยังไม่เชื่อมต่อ Supabase</div>
+      <button class="ghost-button" id="openSettingsBtn" type="button">ตั้งค่า Supabase</button>
+      <button class="ghost-button" id="previewPdfBtn" type="button">พรีวิว PDF</button>
+      <button class="primary-button" id="printQuoteBtn" type="button">Export PDF</button>
+    </div>
+  </header>
+
+  <main class="shell">
+    <section class="hero">
+      <div class="hero-copy glass-card">
+        <h2>ระบบสร้างใบเสนอราคา</h2>
+        <p class="hero-subtext">จัดการข้อมูลเอกสาร ลูกค้า สินค้า และประวัติทั้งหมดในหน้าเดียว แบบเรียบร้อยและพร้อมพิมพ์เอกสารได้ทันที</p>
+        <div class="hero-metrics">
+          <article>
+            <span id="metricQuotes">0</span>
+            <small>ใบเสนอราคา</small>
+          </article>
+          <article>
+            <span id="metricCustomers">0</span>
+            <small>ลูกค้า</small>
+          </article>
+          <article>
+            <span id="metricProducts">0</span>
+            <small>สินค้า</small>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <nav class="tabbar">
+      <button class="tab active" data-tab="quotes">สร้างใบเสนอราคา</button>
+      <button class="tab" data-tab="customers">ฐานข้อมูลลูกค้า</button>
+      <button class="tab" data-tab="products">ฐานข้อมูลสินค้า</button>
+      <button class="tab" data-tab="history">ประวัติ</button>
+    </nav>
+
+    <section class="tab-panel active" id="tab-quotes">
+      <div class="quote-shell">
+        <div class="quote-top-grid">
+          <article class="panel-card">
+            <div class="section-heading">
+              <div>
+                <p class="eyebrow">Quote Builder</p>
+                <h3>ข้อมูลเอกสาร</h3>
+              </div>
+              <button class="ghost-button" id="newQuoteBtn" type="button">เริ่มเอกสารใหม่</button>
+            </div>
+
+            <div class="form-grid">
+              <label>
+                <span>เลขที่เอกสาร</span>
+                <input id="quoteNo" type="text" readonly>
+              </label>
+              <label>
+                <span>วันที่ออกเอกสาร</span>
+                <input id="quoteDate" type="date">
+              </label>
+              <label>
+                <span>วันครบกำหนด</span>
+                <input id="dueDate" type="date">
+              </label>
+              <label>
+                <span>กำหนดส่ง</span>
+                <input id="deliveryTerm" type="text" placeholder="เช่น ภายใน 7-15 วัน" value="ภายใน 7-15 วัน">
+              </label>
+              <label>
+                <span>ยืนราคา</span>
+                <input id="validityTerm" type="text" placeholder="เช่น 30 วัน" value="30 วัน">
+              </label>
+              <label>
+                <span>สถานะ</span>
+                <select id="quoteStatus">
+                  <option value="draft">Draft</option>
+                  <option value="sent">Sent</option>
+                  <option value="approved">Approved</option>
+                </select>
+              </label>
+            </div>
+          </article>
+
+          <article class="panel-card">
+            <div class="section-heading">
+              <div>
+                <p class="eyebrow">Customer</p>
+                <h3>ข้อมูลลูกค้า</h3>
+              </div>
+            </div>
+
+            <div class="form-grid">
+              <label class="full-span">
+                <span>เลือกลูกค้าจากฐานข้อมูล</span>
+                <select id="customerSelect">
+                  <option value="">เลือกลูกค้า</option>
+                </select>
+              </label>
+              <label>
+                <span>หมู่บ้าน / สถานที่</span>
+                <input id="customerName" type="text" placeholder="ชื่อหมู่บ้าน / สถานที่">
+              </label>
+              <label>
+                <span>ผู้ติดต่อ</span>
+                <input id="customerContact" type="text" placeholder="ชื่อผู้ติดต่อ">
+              </label>
+              <label class="full-span">
+                <span>ที่อยู่</span>
+                <textarea id="customerAddress" rows="3" placeholder="ที่อยู่ลูกค้า"></textarea>
+              </label>
+              <label>
+                <span>เบอร์โทร</span>
+                <input id="customerPhone" type="text" placeholder="08x-xxx-xxxx">
+              </label>
+              <label>
+                <span>อีเมล</span>
+                <input id="customerEmail" type="email" placeholder="name@company.com">
+              </label>
+            </div>
+          </article>
+        </div>
+
+        <article class="panel-card">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Items</p>
+              <h3>รายการสินค้า</h3>
+            </div>
+            <button class="ghost-button" id="addItemBtn" type="button">เพิ่มรายการ</button>
+          </div>
+
+          <div class="items-head">
+            <span>สินค้า</span>
+            <span>รายละเอียด</span>
+            <span>จำนวน</span>
+            <span>หน่วย</span>
+            <span>ราคา</span>
+            <span>ส่วนลด</span>
+            <span></span>
+          </div>
+          <div id="itemsContainer" class="items-container"></div>
+        </article>
+
+        <article class="panel-card">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Approval & Notes</p>
+              <h3>ลายเซ็นผู้อนุมัติ และหมายเหตุ</h3>
+            </div>
+          </div>
+
+          <input id="preparedBy" type="hidden" value="ผู้จัดทำเอกสาร">
+          <input id="approvedBy" type="hidden" value="">
+
+          <div class="quote-bottom-grid">
+            <div class="form-grid">
+              <label class="full-span">
+                <span>อัปโหลดลายเซ็นผู้อนุมัติ</span>
+                <input id="approverSignatureInput" type="file" accept="image/*">
+              </label>
+              <label class="full-span">
+                <span>หมายเหตุ</span>
+                <textarea id="quoteRemark" rows="4" placeholder="หมายเหตุเพิ่มเติม / เงื่อนไขการเสนอราคา"></textarea>
+              </label>
+            </div>
+
+            <div class="form-grid quote-finance-grid">
+              <label>
+                <span>ส่วนลดรวมท้ายบิล</span>
+                <input id="extraDiscount" type="number" min="0" step="0.01" value="0">
+              </label>
+              <label>
+                <span>VAT (%)</span>
+                <input id="vatRate" type="number" min="0" step="0.01" value="7">
+              </label>
+              <label class="checkbox-label">
+                <input id="includeVat" type="checkbox" checked>
+                <span>รวม VAT ในเอกสาร</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="action-row quote-actions">
+            <button class="primary-button" id="saveQuoteBtn" type="button">บันทึกใบเสนอราคา</button>
+            <button class="ghost-button" id="duplicateQuoteBtn" type="button">ทำสำเนาเอกสาร</button>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="tab-panel" id="tab-customers">
+      <article class="panel-card">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Customers</p>
+            <h3>ฐานข้อมูลลูกค้า</h3>
+          </div>
+          <button class="primary-button" id="saveCustomerBtn" type="button">บันทึกลูกค้า</button>
+        </div>
+
+        <div class="form-grid">
+          <input id="customerId" type="hidden">
+          <label>
+            <span>รหัสลูกค้า</span>
+            <input id="dbCustomerCode" type="text" placeholder="CUS-001">
+          </label>
+          <label>
+            <span>หมู่บ้าน / สถานที่</span>
+            <input id="dbCustomerName" type="text" placeholder="ชื่อหมู่บ้าน / สถานที่">
+          </label>
+          <label>
+            <span>ผู้ติดต่อ</span>
+            <input id="dbCustomerContact" type="text" placeholder="ผู้ติดต่อ">
+          </label>
+          <label>
+            <span>เบอร์โทร</span>
+            <input id="dbCustomerPhone" type="text" placeholder="เบอร์โทร">
+          </label>
+          <label class="full-span">
+            <span>อีเมล</span>
+            <input id="dbCustomerEmail" type="email" placeholder="name@company.com">
+          </label>
+          <label class="full-span">
+            <span>ที่อยู่</span>
+            <textarea id="dbCustomerAddress" rows="3" placeholder="ที่อยู่ลูกค้า"></textarea>
+          </label>
+        </div>
+
+        <div class="table-toolbar">
+          <input id="customerSearchInput" type="search" placeholder="ค้นหาลูกค้า">
+          <button class="ghost-button" id="clearCustomerFormBtn" type="button">ล้างฟอร์ม</button>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>รหัส</th>
+                <th>ชื่อบริษัท</th>
+                <th>ผู้ติดต่อ</th>
+                <th>เบอร์โทร</th>
+                <th>อีเมล</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="customersTableBody"></tbody>
+          </table>
+        </div>
+      </article>
+    </section>
+
+    <section class="tab-panel" id="tab-products">
+      <article class="panel-card">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Products</p>
+            <h3>ฐานข้อมูลสินค้า</h3>
+          </div>
+          <button class="primary-button" id="saveProductBtn" type="button">บันทึกสินค้า</button>
+        </div>
+
+        <div class="form-grid">
+          <input id="productId" type="hidden">
+          <label>
+            <span>รหัสสินค้า</span>
+            <input id="dbProductCode" type="text" placeholder="PRD-001">
+          </label>
+          <label>
+            <span>ชื่อสินค้า</span>
+            <input id="dbProductName" type="text" placeholder="ชื่อสินค้า">
+          </label>
+          <label class="full-span">
+            <span>รายละเอียด</span>
+            <textarea id="dbProductDescription" rows="3" placeholder="รายละเอียดสินค้า"></textarea>
+          </label>
+          <label>
+            <span>หน่วย</span>
+            <input id="dbProductUnit" type="text" placeholder="ชุด / ชิ้น / งาน">
+          </label>
+          <label>
+            <span>ราคา</span>
+            <input id="dbProductPrice" type="number" min="0" step="0.01" placeholder="0.00">
+          </label>
+        </div>
+
+        <div class="table-toolbar">
+          <input id="productSearchInput" type="search" placeholder="ค้นหาสินค้า">
+          <button class="ghost-button" id="clearProductFormBtn" type="button">ล้างฟอร์ม</button>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>รหัสสินค้า</th>
+                <th>ชื่อสินค้า</th>
+                <th>หน่วย</th>
+                <th>ราคา</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="productsTableBody"></tbody>
+          </table>
+        </div>
+      </article>
+    </section>
+
+    <section class="tab-panel" id="tab-history">
+      <article class="panel-card">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">History</p>
+            <h3>ประวัติใบเสนอราคา</h3>
+          </div>
+        </div>
+
+        <div class="table-toolbar">
+          <input id="historySearchInput" type="search" placeholder="ค้นหาเลขที่เอกสาร / ชื่อลูกค้า">
+        </div>
+
+        <div class="history-grid" id="historyCards"></div>
+      </article>
+    </section>
+  </main>
+
+  <section class="print-sheet-shell" aria-hidden="true">
+    <article class="preview-card print-sheet" id="printArea">
+
+      <div class="prt-content">
+        <!-- HEADER: logo+company LEFT | doc number RIGHT -->
+        <div class="prt-header">
+          <div class="prt-company">
+            <img src="./assets/logo11.jpg" alt="SIWAKIT logo" class="prt-logo">
+            <div class="prt-company-info">
+              <strong>บริษัท ศิวกิจ เทรดดิ้ง จำกัด</strong>
+              <span>138/19 ม.5 ตำบลบ้านฉาง อำเภอบ้านฉาง จังหวัดระยอง 21130</span>
+              <span>โทร: 0926710012 / 0924538936</span>
+              <span>เลขผู้เสียภาษี:</span>
+            </div>
+          </div>
+          <div class="prt-docbox">
+            <p>เลขที่: <span id="previewQuoteNo">-</span></p>
+            <p>วันที่: <span id="previewQuoteDate">-</span></p>
+          </div>
+        </div>
+
+        <!-- TITLE -->
+        <div class="prt-title">ใบเสนอราคา (QUOTATION)</div>
+
+        <!-- CUSTOMER INFO LEFT | TERMS RIGHT -->
+        <div class="prt-info-grid">
+          <div class="prt-customer">
+            <p>หมู่บ้าน/สถานที่: <span id="previewCustomerName">-</span></p>
+            <p>ผู้ติดต่อ: <span id="previewCustomerContact">-</span></p>
+            <p>ที่อยู่: <span id="previewCustomerAddress">-</span></p>
+            <p>โทร: <span id="previewCustomerPhone">-</span></p>
+          </div>
+          <div class="prt-terms">
+            <p><strong>กำหนดส่ง:</strong> <span id="previewDeliveryTerm">ภายใน 7-15 วัน</span></p>
+            <p><strong>ยืนราคา:</strong> <span id="previewValidityTerm">30 วัน</span></p>
+            <p><strong>ครบกำหนด:</strong> <span id="previewDueDate">-</span></p>
+          </div>
+        </div>
+
+        <!-- ITEMS TABLE -->
+        <table class="prt-table">
+          <thead>
+            <tr>
+              <th class="col-no">ลำดับ</th>
+              <th class="col-desc">รายการสินค้า</th>
+              <th class="col-num">จำนวน</th>
+              <th class="col-unit">หน่วย</th>
+              <th class="col-price">ราคา/หน่วย</th>
+            </tr>
+          </thead>
+          <tbody id="previewItemsBody"></tbody>
+        </table>
+
+        <!-- BOTTOM: remarks LEFT | summary RIGHT -->
+        <div class="prt-bottom-grid">
+          <div class="prt-remark">
+            <p class="prt-remark-label">หมายเหตุ / Remarks:</p>
+            <div id="previewRemark"></div>
+          </div>
+          <div class="prt-summary">
+            <div class="prt-sum-row"><span>รวมเงินสินค้า:</span><span id="previewSubtotal">0.00</span></div>
+            <div class="prt-sum-row"><span>หักส่วนลด:</span><span id="previewDiscount">0.00</span></div>
+            <div class="prt-sum-row"><span>ยอดหลังหักส่วนลด:</span><span id="previewAfterDiscount">0.00</span></div>
+            <div class="prt-sum-row" id="previewVatRow"><span id="previewVatLabel">ภาษีมูลค่าเพิ่ม 7%:</span><span id="previewVat">0.00</span></div>
+            <div class="prt-sum-row prt-grand"><span>ยอดรวมสุทธิ:</span><span id="previewGrandTotal">0.00</span></div>
+          </div>
+        </div>
+
+        <!-- BAHT TEXT -->
+        <div class="prt-bahttext" id="previewBahtText">ศูนย์บาทถ้วน</div>
+      </div><!-- end prt-content -->
+      <div class="prt-sig-row">
+        <div class="prt-sig-card">
+          <span id="previewPreparedBy" hidden></span>
+          <div class="prt-sig-img">
+            <img src="./assets/signature.png" alt="ลายเซ็นผู้จัดทำ" id="preparedSignaturePreview">
+          </div>
+          <div class="prt-sig-line">............................................</div>
+          <div class="prt-sig-label">ผู้จัดทำ</div>
+          <div class="prt-sig-name">(..............................................)</div>
+          <div class="prt-sig-date">วันที่ ...../...../..........</div>
+        </div>
+        <div class="prt-sig-card">
+          <span id="previewApprovedBy" hidden></span>
+          <div class="prt-sig-img" id="approverSignaturePreviewWrap">
+            <span class="signature-placeholder">รออัปโหลดลายเซ็น</span>
+          </div>
+          <div class="prt-sig-line">............................................</div>
+          <div class="prt-sig-label">ผู้อนุมัติ</div>
+          <div class="prt-sig-name">(..............................................)</div>
+          <div class="prt-sig-date">วันที่ ...../...../..........</div>
+        </div>
+      </div>
+
+    </article>
+  </section>
+
+  <div class="modal-backdrop hidden" id="settingsModal">
+    <div class="modal-card">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">Supabase Setup</p>
+          <h3>ตั้งค่าการเชื่อมต่อ</h3>
+        </div>
+        <button class="icon-button" id="closeSettingsBtn" type="button" aria-label="ปิดหน้าต่าง">×</button>
+      </div>
+      <p class="muted">
+        ใส่ค่า Supabase URL และ Supabase Anon Key เพื่อให้เว็บเชื่อมฐานข้อมูลได้
+        ค่าจะถูกเก็บไว้ใน browser นี้เท่านั้น
+      </p>
+      <div class="form-grid">
+        <label class="full-span">
+          <span>Supabase URL</span>
+          <input id="supabaseUrlInput" type="text" placeholder="https://xxxx.supabase.co">
+        </label>
+        <label class="full-span">
+          <span>Supabase Anon Key</span>
+          <textarea id="supabaseAnonKeyInput" rows="5" placeholder="eyJhbGciOi..."></textarea>
+        </label>
+      </div>
+      <div class="action-row">
+        <button class="primary-button" id="saveSettingsBtn" type="button">บันทึกการตั้งค่า</button>
+      </div>
+    </div>
+  </div>
+  
+  <div id="toast" class="toast hidden"></div>
+
+  <!-- PDF Preview Modal -->
+  <div class="modal-backdrop hidden" id="pdfPreviewModal">
+    <div class="modal-card" style="width:90vw;max-width:900px;height:90vh;display:flex;flex-direction:column;">
+      <div class="section-heading" style="flex-shrink:0;">
+        <div>
+          <p class="eyebrow">Preview</p>
+          <h3>พรีวิวใบเสนอราคา</h3>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <button class="primary-button" id="confirmExportBtn" type="button">Export PDF</button>
+          <button class="icon-button" id="closePdfPreviewBtn" type="button" aria-label="ปิด">&#x2715;</button>
+        </div>
+      </div>
+      <div style="flex:1;overflow:hidden;border-radius:8px;background:#888;">
+        <iframe id="pdfPreviewFrame" style="width:100%;height:100%;border:none;" title="PDF Preview"></iframe>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./assets/config.js"></script>
+  <script type="module" src="./assets/app.js"></script>
+</body>
+</html>
