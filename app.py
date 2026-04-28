@@ -107,12 +107,12 @@ def _build_pdf(payload):
 
     # TITLE
     pdf.set_y(45)
-    pdf.set_font(use_f, '', 22)
+    pdf.set_font(use_f, 'b', 22)
     pdf.cell(0, 10, "ใบเสนอราคา (QUOTATION)", 0, 1, 'C')
 
     # CUSTOMER
     pdf.set_y(60)
-    pdf.set_font(use_f, '', 14)
+    pdf.set_font(use_f, 'b', 14)
     pdf.cell(0, 7, f"หมู่บ้าน/สถานที่: {payload.get('customer_name', '-')}", 0, 1)
     pdf.set_x(15)
     pdf.cell(0, 7, f"ผู้ติดต่อ: {payload.get('customer_contact', '-')}", 0, 1)
@@ -131,7 +131,7 @@ def _build_pdf(payload):
     cols_w = [12, 83, 15, 15, 25, 30]
     headers = ["ลำดับ", "รายการสินค้า", "จำนวน", "หน่วย", "ราคา/หน่วย", "จำนวนเงิน"]
     pdf.set_fill_color(240, 240, 240)
-    pdf.set_font(use_f, '', 13)
+    pdf.set_font(use_f, 'b', 13)
     for i, h in enumerate(headers):
         pdf.cell(cols_w[i], 9, h, 1, 0, 'C', True)
     pdf.ln()
@@ -205,7 +205,7 @@ def _build_pdf(payload):
     summary = payload.get('summary', {})
     current_y = pdf.get_y() + 4
     pdf.set_xy(15, current_y)
-    pdf.set_font(use_f, '', 13)
+    pdf.set_font(use_f, 'b', 13)
     pdf.cell(0, 7, "หมายเหตุ / Remarks:", 0, 1)
     remark = payload.get('remark', '')
     pdf.multi_cell(90, 5, remark, 0, 'L')
