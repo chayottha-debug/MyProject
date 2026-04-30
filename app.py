@@ -94,7 +94,7 @@ def _build_pdf(payload):
     pdf.add_page()
 
     # HEADER
-    logo_path = ROOT / "assets" / "logo11.jpg"
+    logo_path = ROOT / "assets" / "LogoNew.png"
     if logo_path.exists():
         pdf.image(str(logo_path), x=15, y=10, w=25)
     pdf.set_xy(45, 10)
