@@ -188,7 +188,7 @@ function renderItemRow(item = {}) {
     <input class="item-qty" type="number" min="0" step="0.01" value="${item.qty ?? 1}">
     <input class="item-unit" type="text" value="${escapeHtml(item.unit || "")}" placeholder="หน่วย">
     <input class="item-price" type="number" min="0" step="0.01" value="${item.unit_price ?? 0}">
-    <input class="item-discount" type="number" min="0" step="0.01" value="${item.discount ?? 0}">
+    <input class="item-total" type="text" readonly value="${currency.format(item.line_total ?? 0)}">
     <button type="button" class="icon-button item-remove">×</button>
   `;
 
@@ -197,7 +197,7 @@ function renderItemRow(item = {}) {
   const qtyInput = row.querySelector(".item-qty");
   const unitInput = row.querySelector(".item-unit");
   const priceInput = row.querySelector(".item-price");
-  const discountInput = row.querySelector(".item-discount");
+  const totalInput = row.querySelector(".item-total");
 
   if (item.product_id) {
     productSelect.value = item.product_id;
@@ -212,8 +212,13 @@ function renderItemRow(item = {}) {
     updatePreview();
   });
 
-  [descriptionInput, qtyInput, unitInput, priceInput, discountInput].forEach((input) => {
-    input.addEventListener("input", updatePreview);
+  [descriptionInput, qtyInput, unitInput, priceInput].forEach((input) => {
+    input.addEventListener("input", () => {
+      const qty = Number(qtyInput.value || 0);
+      const price = Number(priceInput.value || 0);
+      totalInput.value = currency.format(qty * price);
+      updatePreview();
+    });
   });
 
   row.querySelector(".item-remove").addEventListener("click", () => {
@@ -250,7 +255,7 @@ function getItems() {
     const qty = Number(row.querySelector(".item-qty").value || 0);
     const unit = row.querySelector(".item-unit").value.trim();
     const unitPrice = Number(row.querySelector(".item-price").value || 0);
-    const discount = Number(row.querySelector(".item-discount").value || 0);
+    const discount = 0; // Individual item discount removed
     return {
       product_id: productId,
       description,
@@ -258,7 +263,7 @@ function getItems() {
       unit,
       unit_price: unitPrice,
       discount,
-      line_total: Math.max((qty * unitPrice) - discount, 0)
+      line_total: qty * unitPrice
     };
   }).filter((item) => item.description || item.qty || item.unit_price);
 }
@@ -400,9 +405,10 @@ async function updatePreview() {
         <td>${currency.format(item.qty)}</td>
         <td>${escapeHtml(item.unit || "-")}</td>
         <td>${currency.format(item.unit_price)}</td>
+        <td>${currency.format(item.line_total)}</td>
       </tr>
     `).join("")
-    : `<tr><td colspan="5" class="muted">ยังไม่มีรายการสินค้า</td></tr>`;
+    : `<tr><td colspan="6" class="muted">ยังไม่มีรายการสินค้า</td></tr>`;
 
   const afterDiscount = Math.max(state.quoteSummary.gross - state.quoteSummary.discount, 0);
   dom.previewSubtotal.textContent = currency.format(state.quoteSummary.gross);

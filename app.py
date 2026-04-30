@@ -296,7 +296,7 @@ def quote_summary():
     for item in items:
         qty = _to_decimal(item.get("qty", 0))
         unit_price = _to_decimal(item.get("unit_price", 0))
-        item_discount = _to_decimal(item.get("discount", 0))
+        item_discount = 0 # Individual item discount removed
         gross += qty * unit_price
         discount += item_discount
 
