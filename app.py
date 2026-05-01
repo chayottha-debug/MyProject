@@ -93,44 +93,42 @@ def _build_pdf(payload):
 
     pdf.add_page()
 
-    # HEADER
+    # HEADER - Center Logo and Remove Company Info
     logo_path = ROOT / "assets" / "LogoNew.png"
     if logo_path.exists():
-        pdf.image(str(logo_path), x=15, y=10, w=25)
-    pdf.set_xy(45, 10)
-    pdf.set_font(use_f, '', 18)
-    pdf.cell(0, 8, "บริษัท ศิวกิจ เทรดดิ้ง จำกัด", 0, 1, 'L')
-    pdf.set_x(45)
-    pdf.set_font(use_f, '', 13)
-    pdf.multi_cell(100, 6, "138/19 ม.5 ตำบลบ้านฉาง อำเภอบ้านฉาง จังหวัดระยอง 21130\nโทร: 0926710012 / 0924538936\nเลขผู้เสียภาษี:", 0, 'L')
-
-    # DOC BOX
-    pdf.set_xy(140, 10)
-    pdf.set_font(use_f, '', 13)
-    pdf.cell(55, 20, "", 1, 0)
-    pdf.set_xy(142, 13)
-    pdf.cell(50, 6, f"เลขที่: {payload.get('quote_no', '-')}", 0, 1, 'L')
-    pdf.set_x(142)
-    pdf.cell(50, 6, f"วันที่: {payload.get('quote_date', '-')}", 0, 1, 'L')
-
+        # Center logo: A4 width is 210mm, margins are 15mm each, so usable width is 180mm.
+        # Logo width is 40mm, so x = (210 - 40) / 2 = 85mm
+        pdf.image(str(logo_path), x=85, y=10, w=40)
+    
     # TITLE
     pdf.set_y(45)
     pdf.set_font(use_f, 'b', 22)
     pdf.cell(0, 10, "ใบเสนอราคา (QUOTATION)", 0, 1, 'C')
 
-    # CUSTOMER
-    pdf.set_y(60)
-    pdf.set_font(use_f, 'b', 14)
+    # CUSTOMER INFO BOX (Left)
+    pdf.set_xy(15, 60)
+    pdf.set_font(use_f, 'b', 13)
+    # Draw a box for customer info
+    pdf.cell(105, 35, "", 1, 0)
+    pdf.set_xy(17, 62)
     pdf.cell(0, 7, f"หมู่บ้าน/สถานที่: {payload.get('customer_name', '-')}", 0, 1)
-    pdf.set_x(15)
+    pdf.set_x(17)
     pdf.cell(0, 7, f"ผู้ติดต่อ: {payload.get('customer_contact', '-')}", 0, 1)
-    pdf.set_x(15)
-    pdf.multi_cell(110, 6, f"ที่อยู่: {payload.get('customer_address', '-')}\nโทร: {payload.get('customer_phone', '-')}", 0, 'L')
+    pdf.set_x(17)
+    pdf.multi_cell(100, 6, f"ที่อยู่: {payload.get('customer_address', '-')}\nโทร: {payload.get('customer_phone', '-')}", 0, 'L')
 
+    # DOCUMENT INFO BOX (Right)
     delivery_term = payload.get('delivery_term', 'ภายใน 7-15 วัน')
     validity_term = payload.get('validity_term', '30 วัน')
-    pdf.set_xy(135, 60)
-    pdf.multi_cell(65, 7,
+    pdf.set_xy(125, 60)
+    # Draw a box for document info
+    pdf.cell(70, 35, "", 1, 0)
+    pdf.set_xy(127, 62)
+    pdf.cell(0, 6, f"เลขที่: {payload.get('quote_no', '-')}", 0, 1, 'L')
+    pdf.set_x(127)
+    pdf.cell(0, 6, f"วันที่: {payload.get('quote_date', '-')}", 0, 1, 'L')
+    pdf.set_x(127)
+    pdf.multi_cell(65, 6,
         f"กำหนดส่ง: {delivery_term}\nยืนราคา: {validity_term}\nครบกำหนด: {payload.get('due_date', '-')}",
         0, 'L')
 
