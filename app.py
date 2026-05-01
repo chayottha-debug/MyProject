@@ -96,44 +96,44 @@ def _build_pdf(payload):
     # HEADER - Center Logo and Remove Company Info
     logo_path = ROOT / "assets" / "LogoNew.png"
     if logo_path.exists():
-        # Center logo: A4 width is 210mm, margins are 15mm each, so usable width is 180mm.
-        # Logo width is 40mm, so x = (210 - 40) / 2 = 85mm
-        pdf.image(str(logo_path), x=85, y=10, w=40)
+        # Center logo: A4 width is 210mm. Logo width 25mm.
+        # x = (210 - 25) / 2 = 92.5mm
+        pdf.image(str(logo_path), x=92.5, y=10, w=25)
     
-    # TITLE
-    pdf.set_y(45)
+    # TITLE - Move down to avoid logo overlap
+    pdf.set_y(40)
     pdf.set_font(use_f, 'b', 22)
     pdf.cell(0, 10, "ใบเสนอราคา (QUOTATION)", 0, 1, 'C')
 
     # CUSTOMER INFO BOX (Left)
-    pdf.set_xy(15, 60)
+    pdf.set_xy(15, 55)
     pdf.set_font(use_f, 'b', 13)
-    # Draw a box for customer info
-    pdf.cell(105, 35, "", 1, 0)
-    pdf.set_xy(17, 62)
+    # Draw a box for customer info (Height 30mm)
+    pdf.cell(105, 30, "", 1, 0)
+    pdf.set_xy(17, 57)
     pdf.cell(0, 7, f"หมู่บ้าน/สถานที่: {payload.get('customer_name', '-')}", 0, 1)
     pdf.set_x(17)
     pdf.cell(0, 7, f"ผู้ติดต่อ: {payload.get('customer_contact', '-')}", 0, 1)
     pdf.set_x(17)
-    pdf.multi_cell(100, 6, f"ที่อยู่: {payload.get('customer_address', '-')}\nโทร: {payload.get('customer_phone', '-')}", 0, 'L')
+    pdf.multi_cell(100, 5, f"ที่อยู่: {payload.get('customer_address', '-')}\nโทร: {payload.get('customer_phone', '-')}", 0, 'L')
 
     # DOCUMENT INFO BOX (Right)
     delivery_term = payload.get('delivery_term', 'ภายใน 7-15 วัน')
     validity_term = payload.get('validity_term', '30 วัน')
-    pdf.set_xy(125, 60)
-    # Draw a box for document info
-    pdf.cell(70, 35, "", 1, 0)
-    pdf.set_xy(127, 62)
+    pdf.set_xy(125, 55)
+    # Draw a box for document info (Height 30mm)
+    pdf.cell(70, 30, "", 1, 0)
+    pdf.set_xy(127, 57)
     pdf.cell(0, 6, f"เลขที่: {payload.get('quote_no', '-')}", 0, 1, 'L')
     pdf.set_x(127)
     pdf.cell(0, 6, f"วันที่: {payload.get('quote_date', '-')}", 0, 1, 'L')
     pdf.set_x(127)
-    pdf.multi_cell(65, 6,
+    pdf.multi_cell(65, 5,
         f"กำหนดส่ง: {delivery_term}\nยืนราคา: {validity_term}\nครบกำหนด: {payload.get('due_date', '-')}",
         0, 'L')
 
-    # TABLE HEADER
-    pdf.set_y(90)
+    # TABLE HEADER - Move down to avoid box overlap
+    pdf.set_y(95)
     cols_w = [12, 83, 15, 15, 25, 30]
     headers = ["ลำดับ", "รายการสินค้า", "จำนวน", "หน่วย", "ราคา/หน่วย", "จำนวนเงิน"]
     pdf.set_fill_color(240, 240, 240)
